@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EchoVerse — Multilingual Voice Studio</title>
+<style>
+body { font-family: Arial,sans-serif; margin:0; padding:0; background:linear-gradient(135deg,#667eea,#764ba2); color:white; }
+.container { max-width:700px; margin:auto; padding:2rem; background:rgba(0,0,0,0.5); border-radius:12px; margin-top:5vh; position:relative; z-index:1; }
+label { display:block; margin-top:1rem; font-weight:bold; }
+textarea, select, input[type=file], input[type=range] { width:100%; padding:0.5rem; border-radius:8px; border:none; font-size:1rem; margin-top:0.5rem; }
+button { margin-top:1rem; background:#ff6f61; border:none; padding:0.75rem 1.5rem; font-size:1.2rem; color:white; border-radius:10px; cursor:pointer; }
+button:hover { background:#ff3b2f; }
+.flash { padding:1rem; margin-bottom:1rem; border-radius:5px; font-weight:bold; color:black; background:white; }
+audio { margin-top:1rem; width:100%; outline:none; }
+#spline-container { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0; opacity:0.2; }
+iframe.spline-frame { width:100%; height:100%; border:none; }
+</style>
+</head>
+<body>
+
+<!-- Spline 3D Background -->
+<div id="spline-container">
+    <iframe class="spline-frame" src="https://my.spline.design/genkubgreetingrobot-VKI9Y7oFDluzsDRWZy8T4ShK/" allowfullscreen></iframe>
+</div>
+
+<div class="container">
+<h1>EchoVerse — Multilingual Voice Studio</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{category}}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST" enctype="multipart/form-data">
+    <label>Enter Text:</label>
+    <textarea name="text" rows="4" placeholder="Type text or upload PDF">{{ request.form.text or '' }}</textarea>
+
+    <label>Upload .txt or .pdf:</label>
+    <input type="file" name="file" accept=".txt,.pdf">
+
+    <label>Language:</label>
+    <select name="language">
+        {% for lang in languages %}
+        <option value="{{lang}}" {% if request.form.language==lang %}selected{% endif %}>{{lang}}</option>
+        {% endfor %}
+    </select>
+
+    <label>Tone:</label>
+    <select name="tone">
+        {% for tone in tones %}
+        <option value="{{tone}}">{{tone}}</option>
+        {% endfor %}
+    </select>
+
+    <label>Speed:</label>
+    <input type="range" name="speed" min="100" max="300" value="{{ request.form.speed or 180 }}">
+
+    <label><input type="checkbox" name="translate" {% if request.form.translate %}checked{% endif %}> Translate</label>
+
+    <button type="submit" name="action" value="preview">Generate & Preview</button>
+    <button type="submit" name="action" value="download">Download Audio</button>
+</form>
+
+{% if audio_base64 %}
+    <audio controls autoplay>
+        <source src="data:audio/mpeg;base64,{{ audio_base64 }}" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+{% endif %}
+
+</div>
+</body>
+</html>
